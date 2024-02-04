@@ -1,0 +1,39 @@
+version: "3"
+services:
+  web:
+    restart: unless-stopped
+    entrypoint: "/app/docker-entrypoint.sh"
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    volumes:
+      - ./static:/app/static
+
+    depends_on:
+      - db
+      - memcached
+
+
+  db:
+    restart: unless-stopped
+    image: postgres:13
+    volumes:
+      - ./var/lib/postgresql/data/:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_DB: bank
+      POSTGRES_USER: bank
+      POSTGRES_PASSWORD: "6J2GbfVd"
+
+  nginx:
+    restart: unless-stopped
+    image: nginx:latest
+    ports:
+      - "5387:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./static:/app/static
+
+  memcached:
+    restart: unless-stopped
+    image: memcached:latest
